@@ -1,6 +1,7 @@
 use std::env;
 use dotenv::dotenv;
 
+#[allow(dead_code)]
 pub enum Environment {
     Production,
     Paper
