@@ -1,10 +1,14 @@
+#![allow(warnings)]
+
 mod config;
 
 mod api {
     pub mod market_data;
+    pub mod stream;
 }
 
 use api::market_data;
+use api::stream;
 
 use config::Environment;
 use apca::Client;
@@ -21,10 +25,10 @@ async fn main() {
         paper_config.alpaca_api_secret
     ).unwrap();
 
+    // get most recent mid prices for a few securities
     let client = Client::new(api_info);
+
     let tickers = vec![String::from("SPY"), String::from("QQQ")];
-    let mid_prices = market_data::latest_mid_prices(&client, tickers).await;
-    for (symbol, mid_price) in mid_prices {
-        println!("{}: {}", symbol, mid_price);
-    }
+
+    stream::stream_quotes(&client, tickers).await;
 }
