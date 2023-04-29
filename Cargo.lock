@@ -873,6 +873,7 @@ name = "pairs_trader"
 version = "0.1.0"
 dependencies = [
  "apca",
+ "chrono",
  "dotenv",
  "futures",
  "reqwest",

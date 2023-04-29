@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 apca = "0.26.2"
+chrono = "0.4.24"
 dotenv = "0.15.0"
 futures = "0.3.28"
 reqwest = "0.11.16"

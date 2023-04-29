@@ -7,6 +7,27 @@ pub enum Environment {
     Paper
 }
 
+//static lifetime
+pub fn universe() -> Vec<&'static str> {
+
+    let universe = vec![
+        "UUP", // US Dollar Index Bullish Fund
+        "UDN", // US Dollar Index Bearish 
+        "CYB", // Chinese Yuan
+        "FXY", // Japanese Yen
+        "FXE", // Euro
+        "FXF", // Swiss Franc
+        "FXB", // British Pound
+        "FXC", // CA Dollar,
+        "SPY",
+        "QQQ",
+        "XLK" // technology
+    ];
+
+    universe
+}
+
+
 pub struct Config {
     pub alpaca_base_url: String,
     pub alpaca_base_url_data: String,

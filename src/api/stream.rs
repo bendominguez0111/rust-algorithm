@@ -41,7 +41,7 @@ pub async fn stream_quotes(client: &Client, tickers: Vec<String>) {
                         println!("{} mid price: {}", q.symbol, mid_price);
                     }
                     _ => {
-                        println!("Received non-bar");
+                        println!("Received non-quote");
                     }
                 }
             }).map_err(Error::Json)
@@ -73,7 +73,7 @@ pub async fn stream_bars(client: &Client, tickers: Vec<String>) {
                         println!("{} close price: {}", bar.symbol, bar.close_price);
                     }
                     _ => {
-                        println!("Received non-quote");
+                        println!("Received non-bar");
                     }
                 }
             }).map_err(Error::Json)

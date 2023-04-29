@@ -7,6 +7,8 @@ mod api {
     pub mod stream;
 }
 
+pub mod utils;
+
 use api::market_data;
 use api::stream;
 
@@ -28,7 +30,9 @@ async fn main() {
     // get most recent mid prices for a few securities
     let client = Client::new(api_info);
 
-    let tickers = vec![String::from("SPY"), String::from("QQQ")];
+    //borrowing the universe
+    let tickers = config::universe();
 
-    stream::stream_quotes(&client, tickers).await;
+    //get bars for trading universe
+    market_data::get_bars(&client, &tickers, 10).await;
 }
