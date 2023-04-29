@@ -3,13 +3,13 @@
 mod config;
 
 mod api {
-    pub mod market_data;
+    pub mod signals;
     pub mod stream;
 }
 
 pub mod utils;
 
-use api::market_data;
+use api::signals;
 use api::stream;
 
 use config::Environment;
@@ -27,12 +27,20 @@ async fn main() {
         paper_config.alpaca_api_secret
     ).unwrap();
 
-    // get most recent mid prices for a few securities
     let client = Client::new(api_info);
-
-    //borrowing the universe
     let tickers = config::universe();
 
-    //get bars for trading universe
-    market_data::get_bars(&client, &tickers, 10).await;
+    //get signal data for trading universe
+    let trading_signals = signals::get_signal_data(&client, &tickers).await;
+
+    for signal_obj in &trading_signals {
+        match signal_obj.signal {
+            signals::Signal::Buy => {
+                println!("Submitting a buy order for {}", signal_obj.symbol);
+            },
+            signals::Signal::Sell => {
+                println!("Submitting a sell order for {}", signal_obj.symbol);
+            }
+        }
+    }
 }

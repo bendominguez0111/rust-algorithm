@@ -11,17 +11,16 @@ pub enum Environment {
 pub fn universe() -> Vec<&'static str> {
 
     let universe = vec![
-        "UUP", // US Dollar Index Bullish Fund
-        "UDN", // US Dollar Index Bearish 
-        "CYB", // Chinese Yuan
-        "FXY", // Japanese Yen
-        "FXE", // Euro
-        "FXF", // Swiss Franc
-        "FXB", // British Pound
-        "FXC", // CA Dollar,
-        "SPY",
-        "QQQ",
-        "XLK" // technology
+        "SPY", // S&P 500, Equity Index
+        "META", // Facebook, Tech
+        "F", // Ford, Auto manufacturers
+        "AAPL", // Apple, Consumer Goods
+        "INTC", // Intel Corp., Semiconductor
+        "XOM", // Exxon Mobil, Energy
+        "JPM", // JP Morgan, Banking
+        "HD", // Home Depot, Consumer Durables
+        "V", // Visa, Financials
+        "AAL" // American Airlines, Airlines
     ];
 
     universe
