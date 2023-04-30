@@ -17,10 +17,12 @@ pub enum Signal {
 pub struct SignalData {
     pub symbol: String,
     pub closing_price: f64,
+    pub standard_dev: f64,
     pub short_ma: f64,
     pub long_ma: f64,
     pub spread: f64,
-    pub signal: Signal
+    pub signal: Signal,
+    pub allocation: f64
 }
 
 pub async fn get_signal_data(
@@ -33,7 +35,7 @@ pub async fn get_signal_data(
         let req = bars::BarsReq {
             symbol: String::from(*symbol), // deferencing
             limit: Some(10_000),
-            start: Utc::now() - Duration::days(30),
+            start: Utc::now() - Duration::days(5),
             end: Utc::now(),
             adjustment: Some(bars::Adjustment::Split), 
             timeframe: bars::TimeFrame::OneMinute,
@@ -43,14 +45,15 @@ pub async fn get_signal_data(
 
         let bars = client.issue::<bars::Get>(&req).await.unwrap();
         let closing_prices: Vec<f64> = bars.bars.iter().map(|bar| bar.close.to_f64().unwrap()).collect();
+        let percentage_returns: Vec<f64> = utils::pct_change(&closing_prices);
 
         let short_ma = utils::simple_moving_average(&closing_prices, 10);
         let long_ma = utils::simple_moving_average(&closing_prices, 20);
 
         let last_closing_price = closing_prices.last().unwrap();
+        let standard_dev = utils::std_dev(&percentage_returns);
 
         let mut signal = Signal::Buy;
-
         if (short_ma < long_ma) {
             signal = Signal::Sell;
         }
@@ -61,15 +64,33 @@ pub async fn get_signal_data(
         return SignalData {
             symbol: symbol.to_string(),
             closing_price: *last_closing_price,
+            standard_dev: standard_dev,
             short_ma: short_ma,
             long_ma: long_ma,
             spread: spread,
-            signal: signal
+            signal: signal,
+            allocation: 0.10 // some initialization
         };
 
     });
 
-    let results = join_all(futures).await;
+    let mut results = join_all(futures).await;
+
+    //create allocations here
+    //not accounting for volatility yet
+    //weight by signal / closing price
+    //once we account for volatility we'll weight by signal / standard deviation
+    let total_weighting: f64 = results.iter().map(|signal| {
+        return (signal.spread / signal.standard_dev);
+    }).sum();
+
+    println!("Total weighting: {}", total_weighting);
+
+    for signal in &mut results {
+        signal.allocation = (signal.spread / signal.standard_dev) / total_weighting;
+    }
+
     println!("{:#?}", results);
+
     results
 }

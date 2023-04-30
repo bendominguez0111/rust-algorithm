@@ -1052,6 +1052,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "futures",
+ "num-decimal",
  "reqwest",
  "serde_json",
  "tokio",
