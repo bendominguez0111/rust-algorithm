@@ -3,15 +3,11 @@ use apca::Client;
 use apca::data::v2::last_quotes;
 use apca::data::v2::bars;
 use apca::data::v2::Feed::IEX;
+use apca::api::v2::order;
+
 use futures::future::join_all;
 use chrono::{Utc, Duration};
 use crate::utils;
-
-#[derive(Debug)]
-pub enum Signal {
-    Buy,
-    Sell
-}
 
 #[derive(Debug)]
 pub struct SignalData {
@@ -21,7 +17,7 @@ pub struct SignalData {
     pub short_ma: f64,
     pub long_ma: f64,
     pub spread: f64,
-    pub signal: Signal,
+    pub side: order::Side,
     pub allocation: f64
 }
 
@@ -53,9 +49,9 @@ pub async fn get_signal_data(
         let last_closing_price = closing_prices.last().unwrap();
         let standard_dev = utils::std_dev(&percentage_returns);
 
-        let mut signal = Signal::Buy;
+        let mut side = order::Side::Buy;
         if (short_ma < long_ma) {
-            signal = Signal::Sell;
+            side = order::Side::Sell;
         }
 
         let mut spread = short_ma - long_ma;
@@ -68,7 +64,7 @@ pub async fn get_signal_data(
             short_ma: short_ma,
             long_ma: long_ma,
             spread: spread,
-            signal: signal,
+            side: side,
             allocation: 0.10 // some initialization
         };
 
@@ -84,13 +80,9 @@ pub async fn get_signal_data(
         return (signal.spread / signal.standard_dev);
     }).sum();
 
-    println!("Total weighting: {}", total_weighting);
-
     for signal in &mut results {
         signal.allocation = (signal.spread / signal.standard_dev) / total_weighting;
     }
-
-    println!("{:#?}", results);
 
     results
 }
